@@ -1,0 +1,156 @@
+module dyn(clk,rst,an,ca);
+    input clk,rst;
+    output reg [3:0]an;
+     output reg [7:0]ca;
+     reg clk_seg;
+     reg [1:0]sel;
+     reg [31:0]count;
+     initial
+     begin
+     clk_seg<=0;
+     count<=0;
+     end 
+ always@(posedge clk)
+ begin
+ if(count==100000)
+ begin
+clk_seg<=~clk_seg;
+count<=0;
+  end
+  else
+  begin
+  count<=count+1;
+  end
+  end
+ wire [7:0]ca1,ca2,ca3,ca4;
+ always@(posedge clk_seg)
+ begin
+ case({sel})
+ 2'b00:begin 
+       an=4'b0111;
+       ca=ca1;
+       end
+  2'b01:begin 
+       an=4'b1011;
+       ca=ca2;
+       end
+  2'b10:begin
+       an=4'b1101;
+       ca=ca3;
+       end
+   2'b11:begin 
+       an=4'b1110;
+       ca=ca4;
+       end
+ endcase
+  
+ sel<=sel+1;
+ end 
+ wire [3:0]s0,s1,m1,m0;
+ dgc dut(clk,rst,s0,s1,m0,m1);
+ display k1(clk,s0,ca4);
+ display k2(clk,s1,ca3); 
+ display k3(clk,m0,ca2);
+ display k4(clk,m1,ca1);
+
+ endmodule
+ 
+
+ module dgc(clk,rst,s0,s1,m0,m1
+
+    );
+    input clk,rst;
+     reg [31:0]ct;
+    reg clk_h;
+    output reg[3:0]s0,s1,m1,m0;
+    
+ initial  
+begin
+ clk_h<=0;
+ ct<=0;
+ s0<=0;
+ s1<=0;
+ m1<=0;
+ m0<=0;
+ 
+ end 
+ 
+ 
+ always@(posedge clk)
+ begin
+ if(ct==50000000)
+ begin
+  clk_h<=~clk_h;
+  ct<=0;
+  end
+  else
+  ct<=ct+1;
+  end
+  
+  always@(posedge clk_h)
+    begin
+    if(rst)
+   begin
+   s0<=0;
+   s1<=0;
+   m1<=0;
+ m0<=0;
+ 
+   end
+   else
+  begin
+    if( m1==5 && m0==9 && s1==5 && s0==9)
+     begin
+     s0<=0;
+     s1<=0;
+     m0<=0;
+     m1<=0;
+     end
+    else
+    begin
+      s0<=s0+1;
+      if(s0==9) begin
+        s0<=0;
+        s1<=s1+1;
+        if(s1==5) begin
+          s0<=0;
+          s1<=0;
+          m0<=m0+1;
+          if(m0==9) begin
+               m0<=0;
+               s0<=0;
+               s1<=0;
+               m1<=m1+1;
+            if(m1==5) begin
+             m0<=0;
+             s0<=0;
+             s1<=0;
+             m1<=0;
+             
+               end 
+               end
+               end
+               end end 
+               end
+               end
+               
+endmodule
+
+module display(clk,value,cath);
+input clk;
+input [3:0]value;
+output reg [7:0] cath;
+always@(posedge clk)begin
+case({value})
+4'b0000:cath<=8'b00000011;
+4'b0001:cath<=8'b10011111;
+4'b0010:cath<=8'b00100101;
+4'b0011:cath<=8'b00001101;
+4'b0100:cath<=8'b10011001;
+4'b0101:cath<=8'b01001001;
+4'b0110:cath<=8'b01000001;
+4'b0111:cath<=8'b00011111;
+4'b1000:cath<=8'b00000001;
+4'b1001:cath<=8'b00001001;
+endcase
+end
